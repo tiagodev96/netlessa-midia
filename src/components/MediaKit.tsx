@@ -4,7 +4,7 @@ import { landingData } from "../data/landing"
 export default function MediaKit() {
   return (
     <section id="midia-kit" className="section">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="max-w-4xl mx-auto text-center">
           <div className="card">
             <h2 className="h2 text-gray-900 mb-4">Mídia Kit Completo</h2>

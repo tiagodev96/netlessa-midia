@@ -3,7 +3,7 @@ import LeadForm from "./LeadForm"
 export default function FinalCta() {
   return (
     <section id="contato" className="section">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <div>
             <h2 className="h2 text-gray-900 mb-6">Pronto para anunciar no seu prédio?</h2>

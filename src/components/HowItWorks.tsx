@@ -3,7 +3,7 @@ import { landingData } from "../data/landing"
 export default function HowItWorks() {
   return (
     <section id="como-funciona" className="section">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="text-center mb-16">
           <h2 className="h2 text-gray-900 mb-4">Como Funciona</h2>
           <p className="lead max-w-3xl mx-auto">Processo simples e eficiente para sua campanha</p>

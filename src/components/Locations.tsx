@@ -1,7 +1,7 @@
 export default function Locations() {
   return (
     <section id="localizacoes" className="section">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Nossas Localizações</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">

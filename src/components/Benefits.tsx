@@ -3,7 +3,7 @@ import { landingData } from "../data/landing";
 export default function Benefits() {
   return (
     <section id="beneficios" className="section">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="text-center mb-16">
           <h2 className="h2 text-gray-900 mb-4">
             Por que anunciar em elevadores?

@@ -9,7 +9,7 @@ export default function Hero() {
       id="inicio"
       className="section bg-gradient-to-b from-blue-50 to-white"
     >
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="space-y-6">

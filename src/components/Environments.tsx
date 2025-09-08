@@ -4,7 +4,7 @@ import { landingData } from "../data/landing"
 export default function Environments() {
   return (
     <section id="ambientes" className="section bg-gray-50">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="text-center mb-16">
           <h2 className="h2 text-gray-900 mb-4">Ambientes Disponíveis</h2>
           <p className="lead max-w-3xl mx-auto">Escolha o ambiente ideal para alcançar seu público-alvo</p>

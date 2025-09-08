@@ -5,7 +5,7 @@ import Marquee from "react-fast-marquee";
 export default function Proofs() {
   return (
     <section id="provas" className="section bg-gray-50">
-      <div className="container-n">
+      <div className="container-n" data-aos="fade-up">
         <div className="text-center mb-16">
           <h2 className="h2 text-gray-900 mb-4">Resultados Comprovados</h2>
           <p className="lead max-w-3xl mx-auto">
