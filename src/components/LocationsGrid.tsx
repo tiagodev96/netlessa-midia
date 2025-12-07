@@ -31,14 +31,14 @@ export default function LocationsGrid({ locations, selectedLocationId, onLocatio
   return (
     <div className="h-full overflow-y-auto flex flex-col">
       <div className="p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Condomínios</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">Locais</h2>
         <p className="text-sm text-gray-600">{locations.length} localizações cadastradas</p>
       </div>
       <div className={`p-4 space-y-3 flex-1 ${hasSingleItem ? 'flex flex-col justify-start' : ''}`}>
         {locations.length === 0 ? (
           <div className="text-center py-12 text-gray-500 flex-1 flex items-center justify-center">
             <div>
-              <p className="text-lg mb-2">Nenhum condomínio cadastrado</p>
+              <p className="text-lg mb-2">Nenhum local cadastrado</p>
               <p className="text-sm text-gray-400">Adicione localizações para começar</p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function LocationsGrid({ locations, selectedLocationId, onLocatio
                   <svg className="w-20 h-20 mx-auto mb-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
-                  <p className="text-sm leading-relaxed">Mais condomínios serão exibidos aqui conforme forem adicionados ao sistema</p>
+                  <p className="text-sm leading-relaxed">Mais locais serão exibidos aqui conforme forem adicionados ao sistema</p>
                 </div>
               </div>
             )}

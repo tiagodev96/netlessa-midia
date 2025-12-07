@@ -27,6 +27,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<maplibregl.Marker[]>([])
+  const markersMapRef = useRef<Map<string, maplibregl.Marker>>(new Map())
   const [locations, setLocations] = useState<Location[]>([])
   const [mapLoaded, setMapLoaded] = useState(false)
   const [dataLoaded, setDataLoaded] = useState(false)
@@ -140,6 +141,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
       marker.remove()
     })
     markersRef.current = []
+    markersMapRef.current.clear()
 
     // Adicionar novos marcadores
     locations.forEach((location) => {
@@ -206,70 +208,77 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
       }
 
       markersRef.current.push(marker)
+      markersMapRef.current.set(location.id, marker)
     })
   }, [locations, selectedLocationId, onLocationSelect, mapLoaded])
 
   useEffect(() => {
-    if (!map.current || !selectedLocationId || !mapLoaded) return
+    if (!map.current || !mapLoaded || !dataLoaded) return
 
-    const selectedLocation = locations.find(loc => loc.id === selectedLocationId)
-    if (!selectedLocation) return
-
-    const lat = typeof selectedLocation.latitude === 'number' 
-      ? selectedLocation.latitude 
-      : parseFloat(String(selectedLocation.latitude))
-    const lng = typeof selectedLocation.longitude === 'number' 
-      ? selectedLocation.longitude 
-      : parseFloat(String(selectedLocation.longitude))
-
-    if (isNaN(lat) || isNaN(lng)) return
-
-    const marker = markersRef.current.find((m, index) => {
-      const location = locations[index]
-      return location?.id === selectedLocationId
+    markersRef.current.forEach((m) => {
+      const popup = m.getPopup()
+      if (popup && popup.isOpen()) {
+        popup.remove()
+      }
     })
 
-    if (!marker || !map.current) return
+    if (selectedLocationId) {
+      const selectedLocation = locations.find(loc => loc.id === selectedLocationId)
+      if (!selectedLocation) return
 
-    map.current.flyTo({
-      center: [lng, lat],
-      zoom: 15,
-      duration: 1000
-    })
+      const lat = typeof selectedLocation.latitude === 'number' 
+        ? selectedLocation.latitude 
+        : parseFloat(String(selectedLocation.latitude))
+      const lng = typeof selectedLocation.longitude === 'number' 
+        ? selectedLocation.longitude 
+        : parseFloat(String(selectedLocation.longitude))
 
-    const openPopupSafely = () => {
-      if (!map.current || !marker) return
+      if (isNaN(lat) || isNaN(lng)) return
+
+      const marker = markersMapRef.current.get(selectedLocationId)
+
+      if (!marker || !map.current) return
+
+      map.current.flyTo({
+        center: [lng, lat],
+        zoom: 15,
+        duration: 1000
+      })
+
+      const openPopupSafely = () => {
+        if (!map.current || !marker) return
+        
+        const popup = marker.getPopup()
+        if (!popup) return
+
+        try {
+          const markerElement = marker.getElement()
+          if (!markerElement || !markerElement.parentElement) {
+            return
+          }
+
+          if (!popup.isOpen()) {
+            marker.togglePopup()
+          }
+        } catch (error) {
+          console.error('Error opening popup:', error)
+        }
+      }
+
+      const handleMoveEnd = () => {
+        setTimeout(openPopupSafely, 200)
+      }
+
+      map.current.once('moveend', handleMoveEnd)
       
-      const popup = marker.getPopup()
-      if (!popup) return
-
-      try {
-        const markerElement = marker.getElement()
-        if (!markerElement || !markerElement.parentElement) {
-          return
+      setTimeout(() => {
+        openPopupSafely()
+        if (map.current) {
+          map.current.off('moveend', handleMoveEnd)
         }
-
-        if (map.current.getContainer() && !popup.isOpen()) {
-          popup.addTo(map.current)
-        }
-      } catch (error) {
-        console.error('Error opening popup:', error)
-      }
+      }, 1100)
     }
-
-    const handleMoveEnd = () => {
-      setTimeout(openPopupSafely, 100)
-    }
-
-    map.current.once('moveend', handleMoveEnd)
-    
-    setTimeout(() => {
-      openPopupSafely()
-      if (map.current) {
-        map.current.off('moveend', handleMoveEnd)
-      }
-    }, 1200)
-  }, [selectedLocationId, locations, mapLoaded])
+  }, [selectedLocationId, locations, mapLoaded, dataLoaded])
 
   return (
     <div className="w-full rounded-lg overflow-hidden relative bg-gray-100" style={{ height }}>
