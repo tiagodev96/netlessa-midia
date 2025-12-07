@@ -34,7 +34,7 @@ export default function Navbar() {
               <Link href="#midia-kit" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
                 Mídia Kit
               </Link>
-              <Link href="#localizacoes" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
+              <Link href="/localizacoes" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
                 Localizações
               </Link>
               <Link href="#faq" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
@@ -112,7 +112,7 @@ export default function Navbar() {
                 Mídia Kit
               </Link>
               <Link
-                href="#localizacoes"
+                href="/localizacoes"
                 className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
