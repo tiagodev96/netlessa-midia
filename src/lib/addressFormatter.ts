@@ -40,8 +40,14 @@ export function formatBrazilianAddress(address: string): FormattedAddress {
     if (secondPart.match(/^\d{5}-?\d{3}$/)) {
       cep = secondPart.replace(/-/g, '')
       cep = cep.substring(0, 5) + '-' + cep.substring(5)
+    } else if (secondPart.match(/^\d+$/)) {
+      if (!numero) {
+        numero = parts[1]
+      }
     } else if (!secondPart.match(/^(salvador|ba|bahia)$/i)) {
-      bairro = parts[1]
+      if (!numero) {
+        bairro = parts[1]
+      }
     }
   }
   
@@ -50,8 +56,14 @@ export function formatBrazilianAddress(address: string): FormattedAddress {
     if (thirdPart.match(/^\d{5}-?\d{3}$/)) {
       cep = thirdPart.replace(/-/g, '')
       cep = cep.substring(0, 5) + '-' + cep.substring(5)
-    } else if (!thirdPart.match(/^(salvador|ba|bahia)$/i) && !bairro) {
-      bairro = parts[2]
+    } else if (thirdPart.match(/^\d+$/)) {
+      if (!numero) {
+        numero = parts[2]
+      }
+    } else if (!thirdPart.match(/^(salvador|ba|bahia)$/i)) {
+      if (!bairro) {
+        bairro = parts[2]
+      }
     }
   }
   

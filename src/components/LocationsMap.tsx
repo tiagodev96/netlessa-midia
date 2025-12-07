@@ -98,7 +98,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
           },
           center: [-38.45002347178393, -12.968578115330597],
           zoom: 13,
-          attributionControl: true,
+          attributionControl: false as any,
         })
 
         map.current.on('load', () => {
@@ -133,7 +133,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
   }, [])
 
   useEffect(() => {
-    if (!map.current) return
+    if (!map.current || !mapLoaded) return
 
     // Remover marcadores antigos
     markersRef.current.forEach((marker) => {
@@ -195,8 +195,9 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
 
       const marker = new maplibregl.Marker(el)
         .setLngLat([lng, lat])
-        .setPopup(popup)
         .addTo(map.current!)
+
+      marker.setPopup(popup)
 
       if (onLocationSelect) {
         el.addEventListener('click', () => {
@@ -206,10 +207,10 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
 
       markersRef.current.push(marker)
     })
-  }, [locations, selectedLocationId, onLocationSelect])
+  }, [locations, selectedLocationId, onLocationSelect, mapLoaded])
 
   useEffect(() => {
-    if (!map.current || !selectedLocationId) return
+    if (!map.current || !selectedLocationId || !mapLoaded) return
 
     const selectedLocation = locations.find(loc => loc.id === selectedLocationId)
     if (!selectedLocation) return
@@ -223,23 +224,52 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
 
     if (isNaN(lat) || isNaN(lng)) return
 
+    const marker = markersRef.current.find((m, index) => {
+      const location = locations[index]
+      return location?.id === selectedLocationId
+    })
+
+    if (!marker || !map.current) return
+
     map.current.flyTo({
       center: [lng, lat],
       zoom: 15,
       duration: 1000
     })
 
-    const marker = markersRef.current.find((m, index) => {
-      const location = locations[index]
-      return location?.id === selectedLocationId
-    })
+    const openPopupSafely = () => {
+      if (!map.current || !marker) return
+      
+      const popup = marker.getPopup()
+      if (!popup) return
 
-    if (marker) {
-      setTimeout(() => {
-        marker.togglePopup()
-      }, 500)
+      try {
+        const markerElement = marker.getElement()
+        if (!markerElement || !markerElement.parentElement) {
+          return
+        }
+
+        if (map.current.getContainer() && !popup.isOpen()) {
+          popup.addTo(map.current)
+        }
+      } catch (error) {
+        console.error('Error opening popup:', error)
+      }
     }
-  }, [selectedLocationId, locations])
+
+    const handleMoveEnd = () => {
+      setTimeout(openPopupSafely, 100)
+    }
+
+    map.current.once('moveend', handleMoveEnd)
+    
+    setTimeout(() => {
+      openPopupSafely()
+      if (map.current) {
+        map.current.off('moveend', handleMoveEnd)
+      }
+    }, 1200)
+  }, [selectedLocationId, locations, mapLoaded])
 
   return (
     <div className="w-full rounded-lg overflow-hidden relative bg-gray-100" style={{ height }}>
