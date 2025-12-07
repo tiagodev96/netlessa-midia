@@ -1,0 +1,101 @@
+import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  try {
+    const supabase = await createClient()
+    
+    const { data, error } = await supabase
+      .from('locations')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching locations:', error)
+      return NextResponse.json(
+        { error: 'Failed to fetch locations' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error in GET /api/locations:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const supabase = await createClient()
+    
+    // Primeiro tenta obter a sessão
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession()
+
+    // Se não tem sessão, tenta obter o usuário
+    let user = session?.user
+    if (!user) {
+      const {
+        data: { user: userData },
+        error: authError,
+      } = await supabase.auth.getUser()
+      user = userData
+      
+      if (authError || !user) {
+        console.error('Auth error - Session:', sessionError, 'User:', authError)
+        return NextResponse.json(
+          { error: 'Unauthorized', details: authError?.message || sessionError?.message },
+          { status: 401 }
+        )
+      }
+    }
+
+    const body = await request.json()
+    const { nome, endereco, impacto, preco, quantidade_telas, latitude, longitude, tipo } = body
+
+    if (!nome || !endereco || impacto === undefined || preco === undefined || quantidade_telas === undefined || latitude === undefined || longitude === undefined) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    const { data, error } = await supabase
+      .from('locations')
+      .insert({
+        nome,
+        endereco,
+        impacto,
+        preco,
+        quantidade_telas,
+        latitude,
+        longitude,
+        tipo: tipo || 'comercial',
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating location:', error)
+      return NextResponse.json(
+        { error: 'Failed to create location' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(data, { status: 201 })
+  } catch (error) {
+    console.error('Error in POST /api/locations:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
