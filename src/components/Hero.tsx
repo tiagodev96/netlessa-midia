@@ -21,9 +21,9 @@ export default function Hero() {
               <Link href="#contato" className="btn btn-primary">
                 {landingData.hero_cta_primary_label}
               </Link>
-              <Link href="#midia-kit" className="btn btn-outline">
+              {/* <Link href="#midia-kit" className="btn btn-outline">
                 {landingData.hero_cta_secondary_label}
-              </Link>
+              </Link> */}
             </div>
 
             <Stats />

@@ -6,7 +6,7 @@ import Benefits from "../components/Benefits";
 import Environments from "../components/Environments";
 import HowItWorks from "../components/HowItWorks";
 import Proofs from "../components/Proofs";
-import MediaKit from "../components/MediaKit";
+// import MediaKit from "../components/MediaKit";
 import Locations from "../components/Locations";
 import Faq from "../components/Faq";
 import FinalCta from "../components/FinalCta";
@@ -32,7 +32,7 @@ export default function HomePage() {
       <Environments />
       <HowItWorks />
       <Proofs />
-      <MediaKit />
+      {/* <MediaKit /> */}
       <Locations />
       <Faq />
       <FinalCta />

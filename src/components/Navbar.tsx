@@ -31,9 +31,9 @@ export default function Navbar() {
               <Link href="/#provas" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
                 Cases
               </Link>
-              <Link href="/#midia-kit" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
+              {/* <Link href="/#midia-kit" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
                 Mídia Kit
-              </Link>
+              </Link> */}
               <Link href="/localizacoes" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
                 Localizações
               </Link>
@@ -104,13 +104,13 @@ export default function Navbar() {
               >
                 Cases
               </Link>
-              <Link
+              {/* <Link
                 href="/#midia-kit"
                 className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Mídia Kit
-              </Link>
+              </Link> */}
               <Link
                 href="/localizacoes"
                 className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"

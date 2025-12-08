@@ -38,8 +38,8 @@ export default function Proofs() {
           </Marquee>
         </div>
 
-        {/* Testimonials */}
-        <div className="mb-16">
+        {/* Testimonials - Commented out */}
+        {/* <div className="mb-16">
           <h3 className="text-xl font-semibold text-center text-gray-700 mb-8">
             Depoimentos
           </h3>
@@ -64,10 +64,10 @@ export default function Proofs() {
               )
             )}
           </div>
-        </div>
+        </div> */}
 
-        {/* Cases */}
-        <div>
+        {/* Cases - Commented out */}
+        {/* <div>
           <h3 className="text-xl font-semibold text-center text-gray-700 mb-8">
             Cases de Sucesso
           </h3>
@@ -84,7 +84,7 @@ export default function Proofs() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

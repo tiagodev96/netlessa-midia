@@ -42,11 +42,11 @@ export default function Footer() {
                   Cases
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="#midia-kit" className="text-gray-300 hover:text-white transition-colors">
                   Mídia Kit
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
