@@ -44,7 +44,7 @@ export default function FinalCta() {
                     />
                   </svg>
                 </div>
-                <span className="text-gray-600">contato@netlessa.com.br</span>
+                <span className="text-gray-600">net.lessa.net@gmail.com</span>
               </div>
 
               <div className="flex items-center space-x-3">
@@ -58,7 +58,7 @@ export default function FinalCta() {
                     />
                   </svg>
                 </div>
-                <span className="text-gray-600">(71) 99999-9999</span>
+                <span className="text-gray-600">(71) 9 8606-4654</span>
               </div>
             </div>
           </div>

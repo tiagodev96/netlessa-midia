@@ -133,7 +133,7 @@ export const landingData: LandingData = {
 
   contact: {
     address: "Salvador, Bahia - Brasil",
-    email: "contato@netlessa.com.br",
-    phone: "(71) 99999-9999",
+    email: "net.lessa.net@gmail.com",
+    phone: "(71) 9 8606-4654",
   },
 };
