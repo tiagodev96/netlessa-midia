@@ -6,11 +6,13 @@ export type Database = {
           id: string
           nome: string
           endereco: string
-          impacto: number
+          pessoas_impactadas: number
           preco: number
           quantidade_telas: number
           latitude: number
           longitude: number
+          tipo: string
+          imagem_url: string | null
           created_at: string
           updated_at: string
         }
@@ -18,11 +20,13 @@ export type Database = {
           id?: string
           nome: string
           endereco: string
-          impacto: number
+          pessoas_impactadas: number
           preco: number
           quantidade_telas: number
           latitude: number
           longitude: number
+          tipo?: string
+          imagem_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -30,11 +34,13 @@ export type Database = {
           id?: string
           nome?: string
           endereco?: string
-          impacto?: number
+          pessoas_impactadas?: number
           preco?: number
           quantidade_telas?: number
           latitude?: number
           longitude?: number
+          tipo?: string
+          imagem_url?: string | null
           created_at?: string
           updated_at?: string
         }
