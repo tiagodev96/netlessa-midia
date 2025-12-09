@@ -59,6 +59,72 @@ function formatAddress(item: any, originalQuery: string): string {
   return parts2.join(',').trim()
 }
 
+async function geocodeWithGoogle(query: string) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY
+  if (!apiKey) {
+    return null
+  }
+
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR&region=br`,
+      {
+        headers: {
+          'User-Agent': 'Netlessa-Midia/1.0',
+        },
+      }
+    )
+
+    if (!response.ok) {
+      return null
+    }
+
+    const data = await response.json()
+
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+      return null
+    }
+
+    return data.results.slice(0, 5).map((result: any) => {
+      const location = result.geometry.location
+      const addressComponents = result.address_components || []
+      
+      const streetNumber = addressComponents.find((c: any) => c.types.includes('street_number'))?.long_name || ''
+      const route = addressComponents.find((c: any) => c.types.includes('route'))?.long_name || ''
+      const neighborhood = addressComponents.find((c: any) => c.types.includes('sublocality') || c.types.includes('neighborhood'))?.long_name || ''
+      const city = addressComponents.find((c: any) => c.types.includes('administrative_area_level_2'))?.long_name || 
+                   addressComponents.find((c: any) => c.types.includes('locality'))?.long_name || ''
+      const state = addressComponents.find((c: any) => c.types.includes('administrative_area_level_1'))?.short_name || ''
+
+      let formattedAddress = result.formatted_address
+      if (streetNumber && route) {
+        formattedAddress = `${route}, ${streetNumber}`
+        if (neighborhood) formattedAddress += `, ${neighborhood}`
+        if (city && state) formattedAddress += `, ${city}, ${state}`
+        else if (city) formattedAddress += `, ${city}`
+      }
+
+      return {
+        display_name: formattedAddress,
+        full_display_name: result.formatted_address,
+        lat: location.lat,
+        lon: location.lng,
+        address: {
+          street_number: streetNumber,
+          route: route,
+          neighborhood: neighborhood,
+          city: city,
+          state: state,
+        },
+        importance: result.geometry.location_type === 'ROOFTOP' ? 1 : 0.8,
+      }
+    })
+  } catch (error) {
+    console.error('Error with Google Geocoding:', error)
+    return null
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -71,58 +137,56 @@ export async function GET(request: Request) {
       )
     }
 
-    // Extrai número do endereço se existir
-    const numberMatch = query.match(/\b(\d+)\b/)
-    const hasNumber = !!numberMatch
-    
-    // Para endereços com número, usa uma busca mais específica
-    // Adiciona parâmetros extras para melhor precisão
-    const geocodeParams = new URLSearchParams({
-      format: 'json',
-      q: query,
-      limit: '5',
-      addressdetails: '1',
-      countrycodes: 'br',
-    })
-    
-    if (hasNumber) {
-      // Quando há número, adiciona parâmetros para melhor precisão
-      geocodeParams.append('accept-language', 'pt-BR')
-      geocodeParams.append('extratags', '1')
-      geocodeParams.append('namedetails', '1')
-    }
+    let results = await geocodeWithGoogle(query)
 
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?${geocodeParams.toString()}`,
-      {
-        headers: {
-          'User-Agent': 'Netlessa-Midia/1.0',
-        },
+    if (!results) {
+      const numberMatch = query.match(/\b(\d+)\b/)
+      const hasNumber = !!numberMatch
+      
+      const geocodeParams = new URLSearchParams({
+        format: 'json',
+        q: query,
+        limit: '5',
+        addressdetails: '1',
+        countrycodes: 'br',
+      })
+      
+      if (hasNumber) {
+        geocodeParams.append('accept-language', 'pt-BR')
+        geocodeParams.append('extratags', '1')
+        geocodeParams.append('namedetails', '1')
       }
-    )
 
-    if (!response.ok) {
-      throw new Error('Geocoding service unavailable')
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?${geocodeParams.toString()}`,
+        {
+          headers: {
+            'User-Agent': 'Netlessa-Midia/1.0',
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Geocoding service unavailable')
+      }
+
+      const data = await response.json()
+
+      const sortedData = [...data].sort((a: any, b: any) => {
+        const importanceA = a.importance || 0
+        const importanceB = b.importance || 0
+        return importanceB - importanceA
+      })
+
+      results = sortedData.map((item: any) => ({
+        display_name: formatAddress(item, query),
+        full_display_name: item.display_name,
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        address: item.address,
+        importance: item.importance || 0,
+      }))
     }
-
-    const data = await response.json()
-
-    // Ordena resultados por relevância (importance) quando disponível
-    // Endereços com número tendem a ter maior importância
-    const sortedData = [...data].sort((a: any, b: any) => {
-      const importanceA = a.importance || 0
-      const importanceB = b.importance || 0
-      return importanceB - importanceA
-    })
-
-    const results = sortedData.map((item: any) => ({
-      display_name: formatAddress(item, query),
-      full_display_name: item.display_name,
-      lat: parseFloat(item.lat),
-      lon: parseFloat(item.lon),
-      address: item.address,
-      importance: item.importance || 0,
-    }))
 
     return NextResponse.json(results)
   } catch (error) {

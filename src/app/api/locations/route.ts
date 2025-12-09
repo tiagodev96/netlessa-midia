@@ -57,9 +57,9 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { nome, endereco, impacto, preco, quantidade_telas, latitude, longitude, tipo } = body
+    const { nome, endereco, pessoas_impactadas, preco, quantidade_telas, latitude, longitude, tipo, imagem_url } = body
 
-    if (!nome || !endereco || impacto === undefined || preco === undefined || quantidade_telas === undefined || latitude === undefined || longitude === undefined) {
+    if (!nome || !endereco || pessoas_impactadas === undefined || preco === undefined || quantidade_telas === undefined || latitude === undefined || longitude === undefined) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -71,12 +71,13 @@ export async function POST(request: Request) {
       .insert({
         nome,
         endereco,
-        impacto,
+        pessoas_impactadas,
         preco,
         quantidade_telas,
         latitude,
         longitude,
         tipo: tipo || 'comercial',
+        imagem_url: imagem_url || null,
       })
       .select()
       .single()

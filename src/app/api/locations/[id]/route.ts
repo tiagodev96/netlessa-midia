@@ -70,17 +70,18 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { nome, endereco, impacto, preco, quantidade_telas, latitude, longitude, tipo } = body
+    const { nome, endereco, pessoas_impactadas, preco, quantidade_telas, latitude, longitude, tipo, imagem_url } = body
 
     const updateData: Record<string, any> = {}
     if (nome !== undefined) updateData.nome = nome
     if (endereco !== undefined) updateData.endereco = endereco
-    if (impacto !== undefined) updateData.impacto = impacto
+    if (pessoas_impactadas !== undefined) updateData.pessoas_impactadas = pessoas_impactadas
     if (preco !== undefined) updateData.preco = preco
     if (quantidade_telas !== undefined) updateData.quantidade_telas = quantidade_telas
     if (latitude !== undefined) updateData.latitude = latitude
     if (longitude !== undefined) updateData.longitude = longitude
     if (tipo !== undefined) updateData.tipo = tipo
+    if (imagem_url !== undefined) updateData.imagem_url = imagem_url
 
     const { data, error } = await supabase
       .from('locations')
