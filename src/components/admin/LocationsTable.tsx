@@ -16,12 +16,13 @@ interface Location {
   id: string
   nome: string
   endereco: string
-  impacto: number
+  pessoas_impactadas: number
   preco: number
   quantidade_telas: number
   latitude: number
   longitude: number
   tipo: 'comercial' | 'residencial'
+  imagem_url?: string | null
 }
 
 interface LocationsTableProps {
@@ -66,9 +67,10 @@ export default function LocationsTable({
           <TableHead>Nome</TableHead>
           <TableHead>Endereço</TableHead>
           <TableHead>Tipo</TableHead>
-          <TableHead className="text-right">Impacto</TableHead>
+          <TableHead className="text-right">Pessoas Impactadas</TableHead>
           <TableHead className="text-right">Preço</TableHead>
           <TableHead className="text-right">Telas</TableHead>
+          <TableHead className="text-right">Exibições</TableHead>
           <TableHead className="text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
@@ -81,7 +83,7 @@ export default function LocationsTable({
               {location.tipo === 'comercial' ? 'Comercial' : 'Residencial'}
             </TableCell>
             <TableCell className="text-right">
-              {location.impacto.toLocaleString()}
+              {location.pessoas_impactadas.toLocaleString()}
             </TableCell>
             <TableCell className="text-right">
               R${' '}
@@ -91,6 +93,9 @@ export default function LocationsTable({
             </TableCell>
             <TableCell className="text-right">
               {location.quantidade_telas}
+            </TableCell>
+            <TableCell className="text-right">
+              {(location.quantidade_telas * 5000).toLocaleString('pt-BR')}
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">

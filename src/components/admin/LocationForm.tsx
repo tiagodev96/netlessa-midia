@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,17 +21,19 @@ import {
 import LocationMap from './LocationMap'
 import AddressSearch from './AddressSearch'
 import { createClient } from '@/lib/supabase/client'
+import { Upload, X } from 'lucide-react'
 
 interface Location {
   id?: string
   nome: string
   endereco: string
-  impacto: number
+  pessoas_impactadas: number
   preco: number
   quantidade_telas: number
   latitude: number
   longitude: number
   tipo: 'comercial' | 'residencial'
+  imagem_url?: string | null
 }
 
 interface LocationFormProps {
@@ -47,6 +49,10 @@ export default function LocationForm({
   location,
   onSuccess,
 }: LocationFormProps) {
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+
   const {
     register,
     handleSubmit,
@@ -58,35 +64,117 @@ export default function LocationForm({
     defaultValues: {
       nome: '',
       endereco: '',
-      impacto: 0,
+      pessoas_impactadas: 0,
       preco: 0,
       quantidade_telas: 0,
       latitude: -12.968578115330597,
       longitude: -38.45002347178393,
       tipo: 'comercial',
+      imagem_url: null,
     },
     mode: 'onChange',
   })
 
   const latitude = watch('latitude')
   const longitude = watch('longitude')
+  const quantidade_telas = watch('quantidade_telas')
+  const imagem_url = watch('imagem_url')
 
   useEffect(() => {
     if (location) {
-      reset(location)
+      reset({
+        ...location,
+        pessoas_impactadas: location.pessoas_impactadas || 0,
+      })
+      setImagePreview(location.imagem_url || null)
     } else {
       reset({
         nome: '',
         endereco: '',
-        impacto: 0,
+        pessoas_impactadas: 0,
         preco: 0,
         quantidade_telas: 0,
         latitude: -12.968578115330597,
         longitude: -38.45002347178393,
         tipo: 'comercial',
+        imagem_url: null,
       })
+      setImagePreview(null)
+      setImageFile(null)
     }
   }, [location, reset, open])
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB')
+      return
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      alert('Apenas imagens JPEG, PNG e WebP são permitidas')
+      return
+    }
+
+    setImageFile(file)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+    setValue('imagem_url', null)
+  }
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) {
+      return imagem_url || null
+    }
+
+    setUploadingImage(true)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        throw new Error('Você precisa estar autenticado para fazer upload de imagens')
+      }
+
+      const formData = new FormData()
+      formData.append('file', imageFile)
+
+      const response = await fetch('/api/locations/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }))
+        const errorMessage = errorData.details ? `${errorData.error}: ${errorData.details}` : (errorData.error || 'Erro ao fazer upload da imagem')
+        throw new Error(errorMessage)
+      }
+
+      const data = await response.json()
+      return data.url
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert(error instanceof Error ? error.message : 'Erro ao fazer upload da imagem. Tente novamente.')
+      return null
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   const onSubmit = async (data: Location) => {
     try {
@@ -102,7 +190,6 @@ export default function LocationForm({
 
       const supabase = createClient()
       
-      // Verificar se está autenticado
       const { data: { user }, error: authError } = await supabase.auth.getUser()
       
       if (authError || !user) {
@@ -110,20 +197,21 @@ export default function LocationForm({
         return
       }
 
-      // Usar o cliente do Supabase diretamente para inserir/atualizar
+      const uploadedImageUrl = await uploadImage()
+
       if (location?.id) {
-        // Atualizar
         const { data: updatedData, error } = await supabase
           .from('locations')
           .update({
             nome: data.nome,
             endereco: data.endereco,
-            impacto: data.impacto,
+            pessoas_impactadas: data.pessoas_impactadas,
             preco: data.preco,
             quantidade_telas: data.quantidade_telas,
             latitude: data.latitude,
             longitude: data.longitude,
             tipo: data.tipo,
+            imagem_url: uploadedImageUrl,
           })
           .eq('id', location.id)
           .select()
@@ -134,18 +222,18 @@ export default function LocationForm({
           throw new Error(error.message || 'Failed to update location')
         }
       } else {
-        // Inserir
         const { data: newData, error } = await supabase
           .from('locations')
           .insert({
             nome: data.nome,
             endereco: data.endereco,
-            impacto: data.impacto,
+            pessoas_impactadas: data.pessoas_impactadas,
             preco: data.preco,
             quantidade_telas: data.quantidade_telas,
             latitude: data.latitude,
             longitude: data.longitude,
             tipo: data.tipo,
+            imagem_url: uploadedImageUrl,
           })
           .select()
           .single()
@@ -233,20 +321,20 @@ export default function LocationForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="impacto">Impacto (pessoas) *</Label>
+              <Label htmlFor="pessoas_impactadas">Pessoas Impactadas *</Label>
               <Input
-                id="impacto"
+                id="pessoas_impactadas"
                 type="number"
-                {...register('impacto', {
-                  required: 'Impacto é obrigatório',
+                {...register('pessoas_impactadas', {
+                  required: 'Pessoas impactadas é obrigatório',
                   valueAsNumber: true,
-                  min: { value: 0, message: 'Impacto deve ser positivo' },
+                  min: { value: 0, message: 'Deve ser positivo' },
                 })}
                 placeholder="0"
               />
-              {errors.impacto && (
+              {errors.pessoas_impactadas && (
                 <p className="text-sm text-red-500">
-                  {errors.impacto.message}
+                  {errors.pessoas_impactadas.message}
                 </p>
               )}
             </div>
@@ -267,6 +355,7 @@ export default function LocationForm({
               {errors.preco && (
                 <p className="text-sm text-red-500">{errors.preco.message}</p>
               )}
+              <p className="text-xs text-gray-500">Preço por 30 dias</p>
             </div>
 
             <div className="space-y-2">
@@ -290,6 +379,62 @@ export default function LocationForm({
                 </p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="exibicoes">Exibições</Label>
+              <Input
+                id="exibicoes"
+                type="number"
+                value={quantidade_telas * 5000}
+                disabled
+                className="bg-gray-50"
+              />
+              <p className="text-xs text-gray-500">Calculado automaticamente (5.000 × quantidade de telas)</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="imagem">Imagem</Label>
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                  onClick={handleRemoveImage}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                <Label htmlFor="imagem-upload" className="cursor-pointer">
+                  <span className="text-sm text-gray-600">
+                    Clique para fazer upload de uma imagem
+                  </span>
+                  <Input
+                    id="imagem-upload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </Label>
+                <p className="text-xs text-gray-500 mt-2">
+                  Máximo 5MB. Formatos: JPEG, PNG, WebP
+                </p>
+              </div>
+            )}
+            {uploadingImage && (
+              <p className="text-sm text-blue-600">Fazendo upload da imagem...</p>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -316,8 +461,8 @@ export default function LocationForm({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isSubmitting || uploadingImage}>
+              {(isSubmitting || uploadingImage) ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>
         </form>

@@ -14,12 +14,13 @@ interface Location {
   id: string
   nome: string
   endereco: string
-  impacto: number
+  pessoas_impactadas: number
   preco: number
   quantidade_telas: number
   latitude: number
   longitude: number
   tipo: 'comercial' | 'residencial'
+  imagem_url?: string | null
 }
 
 export default function AdminPage() {
