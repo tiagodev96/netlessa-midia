@@ -8,12 +8,13 @@ export interface Location {
   id: string
   nome: string
   endereco: string
-  impacto: number
+  pessoas_impactadas: number
   preco: number | string
   quantidade_telas: number
   latitude: number | string
   longitude: number | string
   tipo: 'comercial' | 'residencial'
+  imagem_url?: string | null
 }
 
 interface LocationsMapProps {
@@ -170,29 +171,60 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
       }
 
       const popup = new maplibregl.Popup({ 
-        offset: [10, -100],
-        anchor: 'left',
+        offset: [0, -15],
+        anchor: 'bottom',
         closeButton: true,
-        closeOnClick: false
+        closeOnClick: false,
+        maxWidth: '600px'
       }).setHTML(
         getLocationPopupHTML({
           nome: location.nome,
           endereco: location.endereco,
-          impacto: location.impacto,
+          pessoas_impactadas: location.pessoas_impactadas,
           preco: preco,
-          quantidade_telas: location.quantidade_telas
+          quantidade_telas: location.quantidade_telas,
+          imagem_url: location.imagem_url || null
         })
       )
 
       popup.on('open', () => {
-        const popupElement = popup.getElement()
-        if (popupElement) {
-          const popupContent = popupElement.querySelector('.maplibregl-popup-content')
-          if (popupContent) {
-            const contentHeight = (popupContent as HTMLElement).offsetHeight
-            popup.setOffset([10, -contentHeight / 2])
+        if (!map.current) return
+        
+        setTimeout(() => {
+          const popupElement = popup.getElement()
+          if (popupElement && map.current) {
+            const popupContent = popupElement.querySelector('.maplibregl-popup-content')
+            if (popupContent) {
+              const contentElement = popupContent as HTMLElement
+              const contentWidth = contentElement.offsetWidth || 500
+              const contentHeight = contentElement.offsetHeight || 300
+              
+              const markerPoint = map.current.project([lng, lat])
+              const mapWidth = map.current.getContainer().offsetWidth
+              const mapHeight = map.current.getContainer().offsetHeight
+              
+              const popupWidth = contentWidth + 40
+              const popupHeight = contentHeight + 40
+              
+              let offsetX = 0
+              let offsetY = -15
+              
+              if (markerPoint.x < popupWidth / 2 + 20) {
+                offsetX = (popupWidth / 2) - markerPoint.x + 20
+              } else if (markerPoint.x > mapWidth - popupWidth / 2 - 20) {
+                offsetX = -(markerPoint.x - (mapWidth - popupWidth / 2)) - 20
+              }
+              
+              if (markerPoint.y < popupHeight + 20) {
+                offsetY = popupHeight - markerPoint.y + 20
+              } else if (markerPoint.y > mapHeight - 20) {
+                offsetY = -(markerPoint.y - mapHeight) - 20
+              }
+              
+              popup.setOffset([offsetX, offsetY])
+            }
           }
-        }
+        }, 10)
       })
 
       const marker = new maplibregl.Marker(el)

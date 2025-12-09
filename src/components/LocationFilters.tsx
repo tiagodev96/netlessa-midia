@@ -16,12 +16,13 @@ interface Location {
   id: string
   nome: string
   endereco: string
-  impacto: number
+  pessoas_impactadas: number
   preco: number | string
   quantidade_telas: number
   latitude: number | string
   longitude: number | string
   tipo: 'comercial' | 'residencial'
+  imagem_url?: string | null
 }
 
 interface LocationFiltersProps {

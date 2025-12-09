@@ -3,9 +3,10 @@ import { formatBrazilianAddress } from '@/lib/addressFormatter'
 interface LocationPopupData {
   nome: string
   endereco: string
-  impacto: number
+  pessoas_impactadas: number
   preco: number
   quantidade_telas: number
+  imagem_url?: string | null
 }
 
 export function getLocationPopupHTML(data: LocationPopupData): string {
@@ -22,83 +23,90 @@ export function getLocationPopupHTML(data: LocationPopupData): string {
   
   const formattedAddress = formatBrazilianAddress(data.endereco)
 
+  const exibicoes = data.quantidade_telas * 5000
+
   const whatsappMessage = encodeURIComponent(
     `Quero divulgar minha empresa neste local:\n\n` +
     `*${data.nome}*\n` +
     `*Endereco:* ${formattedAddress.formatted}\n` +
-    `*Impacto:* ${formatNumber(data.impacto)} pessoas\n` +
-    `*Quantidade de telas:* ${formatNumber(data.quantidade_telas)}`
+    `*Pessoas Impactadas:* ${formatNumber(data.pessoas_impactadas)}\n` +
+    `*Quantidade de telas:* ${formatNumber(data.quantidade_telas)}\n` +
+    `*Exibições:* ${formatNumber(exibicoes)}`
   )
 
   const whatsappUrl = `https://wa.me/5571986064654?text=${whatsappMessage}`
 
   return `
     <div style="
-      min-width: 320px; 
-      max-width: 380px; 
+      min-width: 500px; 
+      max-width: 600px; 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #ffffff;
       border-radius: 16px;
       padding: 0;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
       overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
     ">
-      <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid #f1f5f9;">
-        <h3 style="
-          margin: 0; 
-          font-size: 18px; 
-          font-weight: 600; 
-          color: #0f172a;
-          letter-spacing: -0.01em;
-          line-height: 1.4;
+      ${data.imagem_url ? `
+        <div style="
+          width: 200px; 
+          min-width: 200px; 
+          flex-shrink: 0;
+          align-self: stretch;
+          overflow: hidden; 
+          background: #f1f5f9;
+          position: relative;
         ">
-          ${escapeHtml(data.nome)}
-        </h3>
-        <p style="
-          margin: 8px 0 0 0; 
-          font-size: 13px; 
-          color: #64748b; 
-          line-height: 1.5;
-        ">
-          ${escapeHtml(formattedAddress.formatted)}
-        </p>
-      </div>
+          <img src="${escapeHtml(data.imagem_url)}" alt="${escapeHtml(data.nome)}" style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+          " />
+        </div>
+      ` : ''}
+      <div style="
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px 24px;
+      ">
+        <div style="padding-bottom: 16px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px;">
+          <h3 style="
+            margin: 0; 
+            font-size: 18px; 
+            font-weight: 600; 
+            color: #0f172a;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+          ">
+            ${escapeHtml(data.nome)}
+          </h3>
+          <p style="
+            margin: 8px 0 0 0; 
+            font-size: 13px; 
+            color: #64748b; 
+            line-height: 1.5;
+          ">
+            ${escapeHtml(formattedAddress.formatted)}
+          </p>
+        </div>
 
-      <div style="padding: 20px 24px;">
         <div style="
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, 1fr);
           gap: 16px;
-          margin-bottom: 24px;
+          margin-bottom: 16px;
         ">
-          <div>
-            <div style="
-              font-size: 11px;
-              color: #94a3b8;
-              font-weight: 500;
-              margin-bottom: 6px;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            ">
-              Impacto
-            </div>
-            <div style="
-              font-size: 20px;
-              font-weight: 600;
-              color: #0f172a;
-              line-height: 1.2;
-            ">
-              ${formatNumber(data.impacto)}
-            </div>
-            <div style="
-              font-size: 11px;
-              color: #94a3b8;
-              margin-top: 2px;
-            ">
-              pessoas
-            </div>
-          </div>
-
           <div>
             <div style="
               font-size: 11px;
@@ -111,12 +119,19 @@ export function getLocationPopupHTML(data: LocationPopupData): string {
               Preço
             </div>
             <div style="
-              font-size: 20px;
+              font-size: 18px;
               font-weight: 600;
               color: #0f172a;
               line-height: 1.2;
             ">
               ${formatCurrency(data.preco)}
+            </div>
+            <div style="
+              font-size: 11px;
+              color: #94a3b8;
+              margin-top: 2px;
+            ">
+              / 30 dias
             </div>
           </div>
 
@@ -132,12 +147,54 @@ export function getLocationPopupHTML(data: LocationPopupData): string {
               Telas
             </div>
             <div style="
-              font-size: 20px;
+              font-size: 18px;
               font-weight: 600;
               color: #0f172a;
               line-height: 1.2;
             ">
               ${formatNumber(data.quantidade_telas)}
+            </div>
+          </div>
+
+          <div>
+            <div style="
+              font-size: 11px;
+              color: #94a3b8;
+              font-weight: 500;
+              margin-bottom: 6px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            ">
+              Pessoas Impactadas
+            </div>
+            <div style="
+              font-size: 18px;
+              font-weight: 600;
+              color: #0f172a;
+              line-height: 1.2;
+            ">
+              ${formatNumber(data.pessoas_impactadas)}
+            </div>
+          </div>
+
+          <div>
+            <div style="
+              font-size: 11px;
+              color: #94a3b8;
+              font-weight: 500;
+              margin-bottom: 6px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            ">
+              Exibições
+            </div>
+            <div style="
+              font-size: 18px;
+              font-weight: 600;
+              color: #0f172a;
+              line-height: 1.2;
+            ">
+              ${formatNumber(exibicoes)}
             </div>
           </div>
         </div>
@@ -161,6 +218,7 @@ export function getLocationPopupHTML(data: LocationPopupData): string {
             border-radius: 10px;
             transition: all 0.2s ease;
             cursor: pointer;
+            margin-top: auto;
           "
           onmouseover="this.style.background='#20ba5a'; this.style.transform='translateY(-1px)';"
           onmouseout="this.style.background='#25D366'; this.style.transform='translateY(0)';"
