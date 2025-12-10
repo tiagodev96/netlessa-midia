@@ -13,7 +13,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-auto py-4">
           <div className="flex items-center">
             <Link href="/#inicio" className="text-2xl font-bold text-blue-600">
-              <Image src="/logo.webp" alt="Netlessa" width={75} height={75} />
+              <Image src="/logo.webp" alt="Lessa Mídia Logo" width={125} height={125} />
             </Link>
           </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { landingData } from "../data/landing"
+import Image from "next/image"
 
 export default function Footer() {
   return (
@@ -8,8 +9,8 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <Link href="#inicio" className="text-2xl font-bold text-white mb-4 block">
-              Netlessa
-            </Link>
+              <Image src="/logo.webp" alt="Lessa Mídia Logo" width={125} height={125} />
+            </Link> 
             <p className="text-gray-300 mb-6 max-w-md">
               Mídia estratégica em elevadores para alcançar seu público-alvo no momento certo, no lugar certo.
             </p>
