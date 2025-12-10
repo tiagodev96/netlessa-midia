@@ -141,9 +141,12 @@ export default function LocationForm({
     setUploadingImage(true)
     try {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
       if (!session) {
+        if (sessionError?.message?.includes('Refresh Token') || sessionError?.message?.includes('refresh_token')) {
+          console.warn('No refresh token found - user not authenticated')
+        }
         throw new Error('Você precisa estar autenticado para fazer upload de imagens')
       }
 
@@ -190,11 +193,25 @@ export default function LocationForm({
 
       const supabase = createClient()
       
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
-      if (authError || !user) {
-        alert('Você precisa estar autenticado para salvar localizações. Por favor, faça login novamente.')
-        return
+      let user = null
+      try {
+        const { data: { user: userData }, error: authError } = await supabase.auth.getUser()
+        user = userData
+        
+        if (authError || !user) {
+          if (authError?.message?.includes('Refresh Token') || authError?.message?.includes('refresh_token')) {
+            console.warn('No refresh token found - user not authenticated')
+          }
+          alert('Você precisa estar autenticado para salvar localizações. Por favor, faça login novamente.')
+          return
+        }
+      } catch (error: any) {
+        if (error?.message?.includes('Refresh Token') || error?.message?.includes('refresh_token')) {
+          console.warn('No refresh token found - user not authenticated')
+          alert('Você precisa estar autenticado para salvar localizações. Por favor, faça login novamente.')
+          return
+        }
+        throw error
       }
 
       const uploadedImageUrl = await uploadImage()
