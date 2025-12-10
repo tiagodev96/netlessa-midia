@@ -247,3 +247,45 @@ html {
 .maplibregl-popup-close-button:active {
   transform: scale(0.95) !important;
 }
+
+.marker {
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform-origin: center center !important;
+}
+
+.marker::before,
+.marker::after {
+  display: none !important;
+  content: none !important;
+}
+
+.maplibregl-marker {
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+  transform-origin: center center !important;
+  will-change: auto !important;
+}
+
+.maplibregl-marker::before,
+.maplibregl-marker::after {
+  display: none !important;
+  content: none !important;
+}
+
+.maplibregl-marker svg {
+  display: none !important;
+}
+
+.maplibregl-marker .marker {
+  transition: none !important;
+}
+
+.maplibregl-marker .marker[data-selected="true"] {
+  transition: transform 0.2s ease !important;
+}

@@ -157,21 +157,61 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
 
       const el = document.createElement('div')
       el.className = 'marker'
-      el.style.width = '30px'
-      el.style.height = '30px'
-      el.style.borderRadius = '50%'
+      el.style.cssText = `
+        width: 60px !important;
+        height: 60px !important;
+        cursor: pointer !important;
+        transition: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: transparent !important;
+        border: none !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        position: absolute !important;
+        transform: translate3d(0, 0, 0) !important;
+        pointer-events: auto !important;
+      `
+      
+      const img = document.createElement('img')
+      img.src = '/logo.webp'
+      img.alt = 'Logo'
+      
       const isSelected = selectedLocationId === location.id
-      el.style.backgroundColor = isSelected ? '#1d4ed8' : '#3b82f6'
-      el.style.border = '3px solid white'
-      el.style.cursor = 'pointer'
-      el.style.boxShadow = isSelected ? '0 4px 8px rgba(29, 78, 216, 0.4)' : '0 2px 4px rgba(0,0,0,0.3)'
-      el.style.transition = 'all 0.2s ease'
+      const boxShadow = isSelected 
+        ? '0 4px 8px rgba(29, 78, 216, 0.4) !important' 
+        : '0 2px 4px rgba(0,0,0,0.3) !important'
+      
+      img.style.cssText = `
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        border-radius: 50% !important;
+        border: 3px solid white !important;
+        background-color: white !important;
+        background-image: none !important;
+        display: block !important;
+        box-shadow: ${boxShadow};
+      `
+      
       if (isSelected) {
-        el.style.transform = 'scale(1.2)'
+        el.setAttribute('data-selected', 'true')
+        el.style.setProperty('transform', 'translate3d(0, 0, 0) scale(1.2)', 'important')
+        el.style.setProperty('transition', 'transform 0.2s ease', 'important')
+      } else {
+        el.setAttribute('data-selected', 'false')
+        el.style.setProperty('transition', 'none', 'important')
       }
+      
+      img.onerror = () => {
+        console.error('Erro ao carregar logo:', img.src)
+      }
+      
+      el.appendChild(img)
 
       const popup = new maplibregl.Popup({ 
-        offset: [0, -15],
+        offset: [0, -30],
         anchor: 'bottom',
         closeButton: true,
         closeOnClick: false,
@@ -207,7 +247,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
               const popupHeight = contentHeight + 40
               
               let offsetX = 0
-              let offsetY = -15
+              let offsetY = -30
               
               if (markerPoint.x < popupWidth / 2 + 20) {
                 offsetX = (popupWidth / 2) - markerPoint.x + 20
@@ -227,9 +267,60 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
         }, 10)
       })
 
-      const marker = new maplibregl.Marker(el)
+      const marker = new maplibregl.Marker({
+        element: el,
+        anchor: 'center',
+        pitchAlignment: 'map',
+        rotationAlignment: 'map'
+      })
         .setLngLat([lng, lat])
         .addTo(map.current!)
+
+      setTimeout(() => {
+        const markerElement = marker.getElement()
+        if (markerElement) {
+          markerElement.style.transition = 'none !important'
+          markerElement.style.transform = 'none !important'
+          
+          const svgElements = markerElement.querySelectorAll('svg')
+          svgElements.forEach(svg => svg.remove())
+          
+          const allChildren = Array.from(markerElement.children)
+          allChildren.forEach(child => {
+            if (child.tagName !== 'IMG') {
+              child.remove()
+            }
+          })
+          
+          const existingImg = markerElement.querySelector('img')
+          if (!existingImg) {
+            const newImg = img.cloneNode(true) as HTMLImageElement
+            markerElement.appendChild(newImg)
+          }
+        }
+      }, 50)
+
+      map.current?.on('move', () => {
+        const markerElement = marker.getElement()
+        if (markerElement) {
+          const htmlElement = markerElement as HTMLElement
+          htmlElement.style.transition = 'none'
+          const innerMarker = markerElement.querySelector('.marker') as HTMLElement
+          if (innerMarker) {
+            innerMarker.style.transition = 'none'
+          }
+        }
+      })
+
+      map.current?.on('moveend', () => {
+        const markerElement = marker.getElement()
+        if (markerElement) {
+          const innerMarker = markerElement.querySelector('.marker') as HTMLElement
+          if (innerMarker && isSelected) {
+            innerMarker.style.transition = 'transform 0.2s ease'
+          }
+        }
+      })
 
       marker.setPopup(popup)
 

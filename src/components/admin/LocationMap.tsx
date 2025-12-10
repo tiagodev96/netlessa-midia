@@ -30,17 +30,88 @@ export default function LocationMap({ latitude, longitude, onLocationChange }: L
     if (latitude && longitude) {
       const el = document.createElement('div')
       el.className = 'marker'
-      el.style.width = '30px'
-      el.style.height = '30px'
-      el.style.borderRadius = '50%'
-      el.style.backgroundColor = '#3b82f6'
-      el.style.border = '3px solid white'
-      el.style.cursor = 'pointer'
-      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)'
+      el.style.cssText = `
+        width: 60px !important;
+        height: 60px !important;
+        cursor: pointer !important;
+        transition: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: transparent !important;
+        border: none !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        position: absolute !important;
+        transform: translate3d(0, 0, 0) !important;
+        pointer-events: auto !important;
+      `
+      
+      const img = document.createElement('img')
+      img.src = '/logo.webp'
+      img.alt = 'Logo'
+      img.style.cssText = `
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        border-radius: 50% !important;
+        border: 3px solid white !important;
+        background-color: white !important;
+        background-image: none !important;
+        display: block !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+      `
+      
+      img.onerror = () => {
+        console.error('Erro ao carregar logo:', img.src)
+      }
+      
+      el.appendChild(img)
 
-      marker.current = new maplibregl.Marker(el)
+      marker.current = new maplibregl.Marker({
+        element: el,
+        anchor: 'center',
+        pitchAlignment: 'map',
+        rotationAlignment: 'map'
+      })
         .setLngLat([longitude, latitude])
         .addTo(map.current)
+
+      setTimeout(() => {
+        const markerElement = marker.current?.getElement()
+        if (markerElement) {
+          markerElement.style.transition = 'none !important'
+          markerElement.style.transform = 'none !important'
+          
+          const svgElements = markerElement.querySelectorAll('svg')
+          svgElements.forEach(svg => svg.remove())
+          
+          const allChildren = Array.from(markerElement.children)
+          allChildren.forEach(child => {
+            if (child.tagName !== 'IMG') {
+              child.remove()
+            }
+          })
+          
+          const existingImg = markerElement.querySelector('img')
+          if (!existingImg) {
+            const newImg = img.cloneNode(true) as HTMLImageElement
+            markerElement.appendChild(newImg)
+          }
+        }
+      }, 50)
+
+      map.current?.on('move', () => {
+        const markerElement = marker.current?.getElement()
+        if (markerElement) {
+          const htmlElement = markerElement as HTMLElement
+          htmlElement.style.transition = 'none'
+          const innerMarker = markerElement.querySelector('.marker') as HTMLElement
+          if (innerMarker) {
+            innerMarker.style.transition = 'none'
+          }
+        }
+      })
     }
 
     map.current.on('click', (e) => {
@@ -49,17 +120,76 @@ export default function LocationMap({ latitude, longitude, onLocationChange }: L
       if (!marker.current) {
         const el = document.createElement('div')
         el.className = 'marker'
-        el.style.width = '30px'
-        el.style.height = '30px'
-        el.style.borderRadius = '50%'
-        el.style.backgroundColor = '#3b82f6'
-        el.style.border = '3px solid white'
-        el.style.cursor = 'pointer'
-        el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)'
+        el.style.cssText = `
+          width: 60px !important;
+          height: 60px !important;
+          cursor: pointer !important;
+          transition: none !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          background-color: transparent !important;
+          border: none !important;
+          background-image: none !important;
+          box-shadow: none !important;
+          position: absolute !important;
+          transform: translate3d(0, 0, 0) !important;
+          pointer-events: auto !important;
+        `
+        
+        const img = document.createElement('img')
+        img.src = '/logo.webp'
+        img.alt = 'Logo'
+        img.style.cssText = `
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: contain !important;
+          border-radius: 50% !important;
+          border: 3px solid white !important;
+          background-color: white !important;
+          background-image: none !important;
+          display: block !important;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+        `
+        
+        img.onerror = () => {
+          console.error('Erro ao carregar logo:', img.src)
+        }
+        
+        el.appendChild(img)
 
-        marker.current = new maplibregl.Marker(el)
+        marker.current = new maplibregl.Marker({
+          element: el,
+          anchor: 'center',
+          pitchAlignment: 'map',
+          rotationAlignment: 'map'
+        })
           .setLngLat([lng, lat])
           .addTo(map.current!)
+
+        setTimeout(() => {
+          const markerElement = marker.current?.getElement()
+          if (markerElement) {
+            markerElement.style.transition = 'none !important'
+            markerElement.style.transform = 'none !important'
+            
+            const svgElements = markerElement.querySelectorAll('svg')
+            svgElements.forEach(svg => svg.remove())
+            
+            const allChildren = Array.from(markerElement.children)
+            allChildren.forEach(child => {
+              if (child.tagName !== 'IMG') {
+                child.remove()
+              }
+            })
+            
+            const existingImg = markerElement.querySelector('img')
+            if (!existingImg) {
+              const newImg = img.cloneNode(true) as HTMLImageElement
+              markerElement.appendChild(newImg)
+            }
+          }
+        }, 50)
       } else {
         marker.current.setLngLat([lng, lat])
       }
@@ -82,17 +212,76 @@ export default function LocationMap({ latitude, longitude, onLocationChange }: L
       } else {
         const el = document.createElement('div')
         el.className = 'marker'
-        el.style.width = '30px'
-        el.style.height = '30px'
-        el.style.borderRadius = '50%'
-        el.style.backgroundColor = '#3b82f6'
-        el.style.border = '3px solid white'
-        el.style.cursor = 'pointer'
-        el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)'
+        el.style.cssText = `
+          width: 60px !important;
+          height: 60px !important;
+          cursor: pointer !important;
+          transition: none !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          background-color: transparent !important;
+          border: none !important;
+          background-image: none !important;
+          box-shadow: none !important;
+          position: absolute !important;
+          transform: translate3d(0, 0, 0) !important;
+          pointer-events: auto !important;
+        `
+        
+        const img = document.createElement('img')
+        img.src = '/logo.webp'
+        img.alt = 'Logo'
+        img.style.cssText = `
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: contain !important;
+          border-radius: 50% !important;
+          border: 3px solid white !important;
+          background-color: white !important;
+          background-image: none !important;
+          display: block !important;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+        `
+        
+        img.onerror = () => {
+          console.error('Erro ao carregar logo:', img.src)
+        }
+        
+        el.appendChild(img)
 
-        marker.current = new maplibregl.Marker(el)
+        marker.current = new maplibregl.Marker({
+          element: el,
+          anchor: 'center',
+          pitchAlignment: 'map',
+          rotationAlignment: 'map'
+        })
           .setLngLat([longitude, latitude])
           .addTo(map.current)
+
+        setTimeout(() => {
+          const markerElement = marker.current?.getElement()
+          if (markerElement) {
+            markerElement.style.transition = 'none !important'
+            markerElement.style.transform = 'none !important'
+            
+            const svgElements = markerElement.querySelectorAll('svg')
+            svgElements.forEach(svg => svg.remove())
+            
+            const allChildren = Array.from(markerElement.children)
+            allChildren.forEach(child => {
+              if (child.tagName !== 'IMG') {
+                child.remove()
+              }
+            })
+            
+            const existingImg = markerElement.querySelector('img')
+            if (!existingImg) {
+              const newImg = img.cloneNode(true) as HTMLImageElement
+              markerElement.appendChild(newImg)
+            }
+          }
+        }, 50)
       }
       map.current.setCenter([longitude, latitude])
     }
