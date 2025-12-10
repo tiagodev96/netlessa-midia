@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { createClient } from '@/lib/supabase/client'
 
@@ -37,7 +38,16 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       })
 
       if (authError) {
-        throw new Error(authError.message)
+        if (authError.message.includes('Invalid login credentials')) {
+          throw new Error('Email ou senha incorretos')
+        }
+        if (authError.message.includes('Email not confirmed')) {
+          throw new Error('Email não confirmado. Verifique sua caixa de entrada.')
+        }
+        if (authError.message.includes('Too many requests')) {
+          throw new Error('Muitas tentativas. Tente novamente mais tarde.')
+        }
+        throw new Error('Erro ao fazer login. Verifique suas credenciais.')
       }
 
       if (!authData.user) {
@@ -77,9 +87,8 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="password">Senha</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           {...register('password', {
             required: 'Senha é obrigatória',
           })}
