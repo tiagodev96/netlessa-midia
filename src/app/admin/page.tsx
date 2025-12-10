@@ -1,144 +1,168 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import LoginForm from '@/components/admin/LoginForm'
-import LocationsTable from '@/components/admin/LocationsTable'
-import LocationForm from '@/components/admin/LocationForm'
-import LocationFilters from '@/components/LocationFilters'
-import { LogOut, Plus } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import LoginForm from "@/components/admin/LoginForm";
+import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
+import LocationsTable from "@/components/admin/LocationsTable";
+import LocationForm from "@/components/admin/LocationForm";
+import LocationFilters from "@/components/LocationFilters";
+import { useToast } from "@/hooks/use-toast";
+import { LogOut, Plus, Lock } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface Location {
-  id: string
-  nome: string
-  endereco: string
-  pessoas_impactadas: number
-  preco: number
-  quantidade_telas: number
-  latitude: number
-  longitude: number
-  tipo: 'comercial' | 'residencial'
-  imagem_url?: string | null
+  id: string;
+  nome: string;
+  endereco: string;
+  pessoas_impactadas: number;
+  preco: number;
+  quantidade_telas: number;
+  latitude: number;
+  longitude: number;
+  tipo: "comercial" | "residencial";
+  imagem_url?: string | null;
 }
 
 export default function AdminPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [locations, setLocations] = useState<Location[]>([])
-  const [filteredLocations, setFilteredLocations] = useState<Location[]>([])
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingLocation, setEditingLocation] = useState<Location | null>(null)
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    checkAuth()
-  }, [])
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     if (user) {
-      fetchLocations()
+      fetchLocations();
     }
-  }, [user])
+  }, [user]);
 
   const checkAuth = async () => {
     try {
-      const supabase = createClient()
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
+      const supabase = createClient();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
       if (error || !user) {
-        setUser(null)
+        setUser(null);
       } else {
-        setUser(user)
+        setUser(user);
       }
     } catch (error) {
-      console.error('Error checking auth:', error)
-      setUser(null)
+      console.error("Error checking auth:", error);
+      setUser(null);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchLocations = async () => {
     try {
-      const response = await fetch('/api/locations', {
-        credentials: 'include',
-      })
+      const response = await fetch("/api/locations", {
+        credentials: "include",
+      });
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json();
         const processedData = data.map((loc: Location) => ({
           ...loc,
-          tipo: loc.tipo || 'comercial',
-        }))
-        setLocations(processedData)
-        setFilteredLocations(processedData)
+          tipo: loc.tipo || "comercial",
+        }));
+        setLocations(processedData);
+        setFilteredLocations(processedData);
       }
     } catch (error) {
-      console.error('Error fetching locations:', error)
+      console.error("Error fetching locations:", error);
     }
-  }
+  };
 
   const handleLoginSuccess = () => {
-    checkAuth()
-  }
+    checkAuth();
+  };
 
   const handleLogout = async () => {
     try {
-      const supabase = createClient()
-      await supabase.auth.signOut()
-      setUser(null)
-      router.refresh()
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      setUser(null);
+      router.refresh();
     } catch (error) {
-      console.error('Error logging out:', error)
+      console.error("Error logging out:", error);
     }
-  }
+  };
 
   const handleCreate = () => {
-    setEditingLocation(null)
-    setFormOpen(true)
-  }
+    setEditingLocation(null);
+    setFormOpen(true);
+  };
 
   const handleEdit = (location: Location) => {
-    setEditingLocation(location)
-    setFormOpen(true)
-  }
+    setEditingLocation(location);
+    setFormOpen(true);
+  };
 
   const handleDelete = async (id: string) => {
     try {
-      const supabase = createClient()
-      
-      const { error } = await supabase
-        .from('locations')
-        .delete()
-        .eq('id', id)
+      const supabase = createClient();
+
+      const { error } = await supabase.from("locations").delete().eq("id", id);
 
       if (error) {
-        console.error('Error deleting location:', error)
-        throw new Error(error.message || 'Failed to delete location')
+        console.error("Error deleting location:", error);
+        throw new Error(error.message || "Failed to delete location");
       }
 
-      const updatedLocations = locations.filter((loc) => loc.id !== id)
-      setLocations(updatedLocations)
-      setFilteredLocations(updatedLocations)
+      const updatedLocations = locations.filter((loc) => loc.id !== id);
+      setLocations(updatedLocations);
+      setFilteredLocations(updatedLocations);
     } catch (error) {
-      console.error('Error deleting location:', error)
-      alert(error instanceof Error ? error.message : 'Erro ao excluir localização. Tente novamente.')
+      console.error("Error deleting location:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Erro ao excluir localização. Tente novamente."
+      );
     }
-  }
+  };
 
   const handleFormSuccess = () => {
-    fetchLocations()
-    setFormOpen(false)
-    setEditingLocation(null)
-  }
+    fetchLocations();
+    setFormOpen(false);
+    setEditingLocation(null);
+  };
+
+  const handleChangePasswordSuccess = () => {
+    setChangePasswordOpen(false);
+    toast({
+      title: "Senha alterada",
+      description: "Sua senha foi alterada com sucesso.",
+      variant: "success",
+    });
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Carregando...</p>
       </div>
-    )
+    );
   }
 
   if (!user) {
@@ -151,7 +175,7 @@ export default function AdminPage() {
           <LoginForm onSuccess={handleLoginSuccess} />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -171,6 +195,13 @@ export default function AdminPage() {
               <Plus className="h-4 w-4 mr-2" />
               Nova Localização
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => setChangePasswordOpen(true)}
+            >
+              <Lock className="h-4 w-4 mr-2" />
+              Alterar Senha
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Sair
@@ -179,7 +210,12 @@ export default function AdminPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <LocationFilters locations={locations} onFilterChange={(filtered: any[]) => setFilteredLocations(filtered as Location[])} />
+          <LocationFilters
+            locations={locations}
+            onFilterChange={(filtered: any[]) =>
+              setFilteredLocations(filtered as Location[])
+            }
+          />
           <div className="p-6">
             <LocationsTable
               locations={filteredLocations}
@@ -195,8 +231,20 @@ export default function AdminPage() {
           location={editingLocation}
           onSuccess={handleFormSuccess}
         />
+
+        <Dialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Alterar Senha</DialogTitle>
+              <DialogDescription>
+                Digite sua senha atual e a nova senha. A nova senha deve ter
+                pelo menos 6 caracteres.
+              </DialogDescription>
+            </DialogHeader>
+            <ChangePasswordForm onSuccess={handleChangePasswordSuccess} />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
-  )
+  );
 }
-
