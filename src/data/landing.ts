@@ -1,7 +1,7 @@
 import type { LandingData } from "../lib/types";
 
 export const landingData: LandingData = {
-  hero_title: "Mídia em Elevadores em Salvador",
+  hero_title: "Mídia em Elevadores em Salvador e Região Metropolitana",
   hero_subtitle:
     "Alcance seu público-alvo no momento certo, no lugar certo. Publicidade estratégica em elevadores residenciais e comerciais.",
   hero_cta_primary_label: "Falar com especialista",
@@ -16,7 +16,7 @@ export const landingData: LandingData = {
   benefits: [
     {
       title: "Hiperlocal",
-      text: "Atinja moradores e trabalhadores específicos de cada região de Salvador com precisão geográfica.",
+      text: "Atinja moradores e trabalhadores específicos de cada região de Salvador e Região Metropolitana com precisão geográfica.",
     },
     {
       title: "Atenção Cativa",
@@ -27,8 +27,8 @@ export const landingData: LandingData = {
       text: "Múltiplas exposições diárias garantem que sua marca seja lembrada.",
     },
     {
-      title: "Checking Online",
-      text: "Acompanhe em tempo real o desempenho da sua campanha com relatórios detalhados.",
+      title: "Público Qualificado",
+      text: "Atinja o público certo no momento certo, com segmentação precisa por localização e perfil demográfico.",
     },
   ],
 
@@ -49,16 +49,16 @@ export const landingData: LandingData = {
 
   howitworks: [
     {
-      title: "Planejamento",
-      text: "Definimos juntos o público-alvo, localizações estratégicas e objetivos da campanha.",
+      title: "Busca e Seleção",
+      text: "Você busca nossa empresa e juntos definimos o melhor local para sua campanha.",
     },
     {
-      title: "Criação",
-      text: "Nossa equipe desenvolve o conteúdo visual otimizado para o formato vertical dos elevadores.",
+      title: "Envio do Material",
+      text: "Você envia a imagem publicitária que deseja veicular.",
     },
     {
-      title: "Veiculação & Checking",
-      text: "Instalamos e monitoramos sua campanha com relatórios em tempo real de performance.",
+      title: "Configuração",
+      text: "Nossa equipe configura e deixa sua campanha disponível nas telas contratadas.",
     },
   ],
 
@@ -107,7 +107,7 @@ export const landingData: LandingData = {
   faq: [
     {
       q: "Qual o tempo mínimo de campanha?",
-      a: "Recomendamos campanhas de no mínimo 30 dias para garantir frequência adequada e resultados mensuráveis.",
+      a: "Campanhas de no mínimo 30 dias para garantir frequência adequada e resultados mensuráveis.",
     },
     {
       q: "Como funciona a segmentação geográfica?",
@@ -115,11 +115,7 @@ export const landingData: LandingData = {
     },
     {
       q: "Vocês criam o material publicitário?",
-      a: "Sim! Nossa equipe de design desenvolve todo o material otimizado para o formato vertical dos elevadores.",
-    },
-    {
-      q: "Como acompanho os resultados?",
-      a: "Fornecemos relatórios semanais com métricas de exposição, além de acesso a dashboard online em tempo real.",
+      a: "Não. A criação e envio do material publicitário é de responsabilidade do contratante. Recomendamos formato vertical (1080x1920px) para melhor visualização nas telas.",
     },
     {
       q: "Qual o formato das telas?",

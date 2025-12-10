@@ -1,11 +1,18 @@
+"use client";
+
 import LeadForm from "./LeadForm"
+import { MapPin, Mail, Phone } from "lucide-react"
 
 export default function FinalCta() {
   return (
-    <section id="contato" className="section">
+    <section id="contato" className="section bg-gradient-to-b from-white to-blue-50">
       <div className="container-n" data-aos="fade-up">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+              <Phone className="w-4 h-4" />
+              Entre em contato
+            </div>
             <h2 className="h2 text-gray-900 mb-6">Pronto para anunciar no seu prédio?</h2>
             <p className="lead mb-8">
               Entre em contato conosco e descubra como a mídia em elevadores pode transformar os resultados do seu
@@ -13,52 +20,25 @@ export default function FinalCta() {
             </p>
 
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
+              <div className="flex items-center space-x-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow group">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <MapPin className="w-5 h-5" />
                 </div>
-                <span className="text-gray-600">Salvador, Bahia - Brasil</span>
+                <span className="text-gray-700 font-medium">Salvador, Bahia - Brasil</span>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
+              <div className="flex items-center space-x-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow group">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <Mail className="w-5 h-5" />
                 </div>
-                <span className="text-gray-600">net.lessa.net@gmail.com</span>
+                <span className="text-gray-700 font-medium">net.lessa.net@gmail.com</span>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
+              <div className="flex items-center space-x-3 p-4 bg-white rounded-xl hover:shadow-md transition-shadow group">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <Phone className="w-5 h-5" />
                 </div>
-                <span className="text-gray-600">(71) 9 8606-4654</span>
+                <span className="text-gray-700 font-medium">(71) 9 8606-4654</span>
               </div>
             </div>
           </div>

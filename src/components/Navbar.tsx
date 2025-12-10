@@ -17,49 +17,23 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden lg:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              <Link href="/#beneficios" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                Benefícios
-              </Link>
-              <Link href="/#ambientes" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                Ambientes
-              </Link>
-              <Link href="/#como-funciona" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                Como Funciona
-              </Link>
-              <Link href="/#provas" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                Cases
-              </Link>
-              {/* <Link href="/#midia-kit" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                Mídia Kit
-              </Link> */}
-              <Link href="/localizacoes" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                Localizações
-              </Link>
-              <Link href="/#faq" className="text-gray-700 hover:text-blue-600 transition-colors focus-visible">
-                FAQ
-              </Link>
-            </div>
-          </div>
-
           <div className="flex items-center gap-4">
             <Link
-              href="/#contato"
-              className="hidden sm:inline-flex items-center justify-center px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              href="/instale-no-seu-condominio"
+              className="inline-flex items-center justify-center px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
             >
-              Falar com especialista
+              Instale no seu local
             </Link>
             <Link
-              href="/#contato"
-              className="sm:hidden inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              href="/localizacoes"
+              className="inline-flex items-center justify-center px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Contato
+              Anuncie conosco
             </Link>
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Menu"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,7 +48,7 @@ export default function Navbar() {
         </div>
 
         {isMenuOpen && (
-          <div className="lg:hidden">
+          <div>
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
               <Link
                 href="/#beneficios"
@@ -112,18 +86,25 @@ export default function Navbar() {
                 Mídia Kit
               </Link> */}
               <Link
-                href="/localizacoes"
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Localizações
-              </Link>
-              <Link
                 href="/#faq"
                 className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
+              </Link>
+              <Link
+                href="/localizacoes"
+                className="block px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors font-medium mt-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Anuncie conosco
+              </Link>
+              <Link
+                href="/instale-no-seu-condominio"
+                className="block px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors font-medium mt-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Instale no seu local
               </Link>
             </div>
           </div>
