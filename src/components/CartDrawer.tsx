@@ -31,6 +31,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
     toast({
       title: "Removido do carrinho",
       description: `${location.nome} foi removido do carrinho`,
+      variant: "info",
     })
   }
 

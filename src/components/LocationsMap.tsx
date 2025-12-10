@@ -245,6 +245,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
                   toast({
                     title: "Adicionado ao carrinho",
                     description: `${location.nome} foi adicionado ao carrinho`,
+                    variant: "success",
                   })
                   const span = button.querySelector('span')
                   if (span) span.textContent = 'Já no carrinho'
