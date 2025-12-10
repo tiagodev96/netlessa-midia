@@ -47,26 +47,43 @@ export async function PUT(
     const { id } = await params
     const supabase = await createClient()
 
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession()
-
-    let user = session?.user
-    if (!user) {
+    let user = null
+    try {
       const {
-        data: { user: userData },
-        error: authError,
-      } = await supabase.auth.getUser()
-      user = userData
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
+      user = session?.user
       
-      if (authError || !user) {
-        console.error('Auth error:', authError || sessionError)
+      if (!user) {
+        const {
+          data: { user: userData },
+          error: authError,
+        } = await supabase.auth.getUser()
+        user = userData
+        
+        if (authError || !user) {
+          if (authError?.message?.includes('Refresh Token') || authError?.message?.includes('refresh_token')) {
+            console.warn('No refresh token found - user not authenticated')
+          } else {
+            console.error('Auth error:', authError || sessionError)
+          }
+          return NextResponse.json(
+            { error: 'Unauthorized' },
+            { status: 401 }
+          )
+        }
+      }
+    } catch (error: any) {
+      if (error?.message?.includes('Refresh Token') || error?.message?.includes('refresh_token')) {
+        console.warn('No refresh token found - user not authenticated')
         return NextResponse.json(
           { error: 'Unauthorized' },
           { status: 401 }
         )
       }
+      throw error
     }
 
     const body = await request.json()
@@ -122,26 +139,43 @@ export async function DELETE(
     const { id } = await params
     const supabase = await createClient()
 
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession()
-
-    let user = session?.user
-    if (!user) {
+    let user = null
+    try {
       const {
-        data: { user: userData },
-        error: authError,
-      } = await supabase.auth.getUser()
-      user = userData
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
+      user = session?.user
       
-      if (authError || !user) {
-        console.error('Auth error:', authError || sessionError)
+      if (!user) {
+        const {
+          data: { user: userData },
+          error: authError,
+        } = await supabase.auth.getUser()
+        user = userData
+        
+        if (authError || !user) {
+          if (authError?.message?.includes('Refresh Token') || authError?.message?.includes('refresh_token')) {
+            console.warn('No refresh token found - user not authenticated')
+          } else {
+            console.error('Auth error:', authError || sessionError)
+          }
+          return NextResponse.json(
+            { error: 'Unauthorized' },
+            { status: 401 }
+          )
+        }
+      }
+    } catch (error: any) {
+      if (error?.message?.includes('Refresh Token') || error?.message?.includes('refresh_token')) {
+        console.warn('No refresh token found - user not authenticated')
         return NextResponse.json(
           { error: 'Unauthorized' },
           { status: 401 }
         )
       }
+      throw error
     }
 
     const { error } = await supabase

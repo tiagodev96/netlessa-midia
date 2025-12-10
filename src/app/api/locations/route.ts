@@ -32,28 +32,43 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     
-    // Primeiro tenta obter a sessão
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession()
-
-    // Se não tem sessão, tenta obter o usuário
-    let user = session?.user
-    if (!user) {
+    let user = null
+    try {
       const {
-        data: { user: userData },
-        error: authError,
-      } = await supabase.auth.getUser()
-      user = userData
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
+      user = session?.user
       
-      if (authError || !user) {
-        console.error('Auth error - Session:', sessionError, 'User:', authError)
+      if (!user) {
+        const {
+          data: { user: userData },
+          error: authError,
+        } = await supabase.auth.getUser()
+        user = userData
+        
+        if (authError || !user) {
+          if (authError?.message?.includes('Refresh Token') || authError?.message?.includes('refresh_token')) {
+            console.warn('No refresh token found - user not authenticated')
+          } else {
+            console.error('Auth error - Session:', sessionError, 'User:', authError)
+          }
+          return NextResponse.json(
+            { error: 'Unauthorized', details: authError?.message || sessionError?.message },
+            { status: 401 }
+          )
+        }
+      }
+    } catch (error: any) {
+      if (error?.message?.includes('Refresh Token') || error?.message?.includes('refresh_token')) {
+        console.warn('No refresh token found - user not authenticated')
         return NextResponse.json(
-          { error: 'Unauthorized', details: authError?.message || sessionError?.message },
+          { error: 'Unauthorized' },
           { status: 401 }
         )
       }
+      throw error
     }
 
     const body = await request.json()

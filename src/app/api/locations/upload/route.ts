@@ -36,28 +36,43 @@ export async function POST(request: NextRequest) {
     }
     
     if (!user) {
-      const {
-        data: { session: cookieSession },
-        error: sessionError,
-      } = await supabase.auth.getSession()
-
-      user = cookieSession?.user
-      session = cookieSession
-      
-      if (!user) {
+      try {
         const {
-          data: { user: userData },
-          error: authError,
-        } = await supabase.auth.getUser()
-        user = userData
+          data: { session: cookieSession },
+          error: sessionError,
+        } = await supabase.auth.getSession()
+
+        user = cookieSession?.user
+        session = cookieSession
         
-        if (authError || !user) {
-          console.error('Auth error - Session:', sessionError, 'User:', authError)
+        if (!user) {
+          const {
+            data: { user: userData },
+            error: authError,
+          } = await supabase.auth.getUser()
+          user = userData
+          
+          if (authError || !user) {
+            if (authError?.message?.includes('Refresh Token') || authError?.message?.includes('refresh_token')) {
+              console.warn('No refresh token found - user not authenticated')
+            } else {
+              console.error('Auth error - Session:', sessionError, 'User:', authError)
+            }
+            return NextResponse.json(
+              { error: 'Unauthorized', details: authError?.message || sessionError?.message || 'Auth session missing!' },
+              { status: 401 }
+            )
+          }
+        }
+      } catch (error: any) {
+        if (error?.message?.includes('Refresh Token') || error?.message?.includes('refresh_token')) {
+          console.warn('No refresh token found - user not authenticated')
           return NextResponse.json(
-            { error: 'Unauthorized', details: authError?.message || sessionError?.message || 'Auth session missing!' },
+            { error: 'Unauthorized' },
             { status: 401 }
           )
         }
+        throw error
       }
     }
     
