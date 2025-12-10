@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import { getLocationPopupHTML } from './LocationPopup'
+import { useCart } from '@/hooks/use-cart'
+import { useToast } from '@/hooks/use-toast'
 
 export interface Location {
   id: string
@@ -32,6 +34,8 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
   const [locations, setLocations] = useState<Location[]>([])
   const [mapLoaded, setMapLoaded] = useState(false)
   const [dataLoaded, setDataLoaded] = useState(false)
+  const { addItem, isInCart } = useCart()
+  const { toast } = useToast()
 
   useEffect(() => {
     if (locationsProp) {
@@ -218,6 +222,7 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
         maxWidth: '600px'
       }).setHTML(
         getLocationPopupHTML({
+          id: location.id,
           nome: location.nome,
           endereco: location.endereco,
           pessoas_impactadas: location.pessoas_impactadas,
@@ -228,6 +233,49 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
       )
 
       popup.on('open', () => {
+        setTimeout(() => {
+          const popupElement = popup.getElement()
+          if (popupElement) {
+            const button = popupElement.querySelector(`#add-to-cart-btn-${location.id}`) as HTMLButtonElement
+            if (button) {
+              const handleAddToCart = (e: Event) => {
+                e.stopPropagation()
+                if (!isInCart(location.id)) {
+                  addItem(location)
+                  toast({
+                    title: "Adicionado ao carrinho",
+                    description: `${location.nome} foi adicionado ao carrinho`,
+                  })
+                  const span = button.querySelector('span')
+                  if (span) span.textContent = 'Já no carrinho'
+                  button.style.background = '#94a3b8'
+                  button.style.cursor = 'not-allowed'
+                  button.disabled = true
+                  button.removeEventListener('click', handleAddToCart)
+                }
+              }
+              
+              button.removeEventListener('click', handleAddToCart)
+              button.addEventListener('click', handleAddToCart)
+              
+              if (isInCart(location.id)) {
+                const span = button.querySelector('span')
+                if (span) span.textContent = 'Já no carrinho'
+                button.style.background = '#94a3b8'
+                button.style.cursor = 'not-allowed'
+                button.disabled = true
+              } else {
+                const span = button.querySelector('span')
+                if (span) span.textContent = 'Adicionar ao carrinho'
+                button.style.background = '#3b82f6'
+                button.style.cursor = 'pointer'
+                button.disabled = false
+              }
+            }
+          }
+        }, 100)
+        
+        if (!map.current) return
         if (!map.current) return
         
         setTimeout(() => {
