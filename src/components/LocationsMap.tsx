@@ -83,20 +83,65 @@ export default function LocationsMap({ selectedLocationId, onLocationSelect, hei
           style: {
             version: 8,
             sources: {
-              'osm': {
+              'satellite': {
                 type: 'raster',
                 tiles: [
-                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
                 ],
                 tileSize: 256,
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© Esri'
+              },
+              'labels': {
+                type: 'raster',
+                tiles: [
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                attribution: '© Esri'
+              },
+              'reference-overlay': {
+                type: 'raster',
+                tiles: [
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                attribution: '© Esri'
+              },
+              'transportation': {
+                type: 'raster',
+                tiles: [
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                attribution: '© Esri'
               }
             },
             layers: [
               {
-                id: 'osm-layer',
+                id: 'satellite-layer',
                 type: 'raster',
-                source: 'osm',
+                source: 'satellite',
+                minzoom: 0,
+                maxzoom: 19
+              },
+              {
+                id: 'labels-layer',
+                type: 'raster',
+                source: 'labels',
+                minzoom: 0,
+                maxzoom: 19
+              },
+              {
+                id: 'reference-overlay-layer',
+                type: 'raster',
+                source: 'reference-overlay',
+                minzoom: 0,
+                maxzoom: 19
+              },
+              {
+                id: 'transportation-layer',
+                type: 'raster',
+                source: 'transportation',
                 minzoom: 0,
                 maxzoom: 19
               }

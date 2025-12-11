@@ -20,12 +20,80 @@ export default function LocationMap({ latitude, longitude, onLocationChange }: L
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'https://tiles.openfreemap.org/styles/liberty',
+      style: {
+        version: 8,
+        sources: {
+          'satellite': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: '© Esri'
+          },
+          'labels': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: '© Esri'
+          },
+          'reference-overlay': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: '© Esri'
+          },
+          'transportation': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: '© Esri'
+          }
+        },
+        layers: [
+          {
+            id: 'satellite-layer',
+            type: 'raster',
+            source: 'satellite',
+            minzoom: 0,
+            maxzoom: 19
+          },
+          {
+            id: 'labels-layer',
+            type: 'raster',
+            source: 'labels',
+            minzoom: 0,
+            maxzoom: 19
+          },
+          {
+            id: 'reference-overlay-layer',
+            type: 'raster',
+            source: 'reference-overlay',
+            minzoom: 0,
+            maxzoom: 19
+          },
+          {
+            id: 'transportation-layer',
+            type: 'raster',
+            source: 'transportation',
+            minzoom: 0,
+            maxzoom: 19
+          }
+        ]
+      },
       center: [longitude || -38.45002347178393, latitude || -12.968578115330597],
       zoom: 13,
+      attributionControl: false as any,
     })
 
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right')
+    map.current.addControl(new maplibregl.AttributionControl(), 'bottom-right')
 
     if (latitude && longitude) {
       const el = document.createElement('div')
