@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect, useRef } from 'react'
 import { useCart } from '@/hooks/use-cart'
 import { Location } from '@/components/LocationsMap'
 import {
@@ -13,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { formatBrazilianAddress } from '@/lib/addressFormatter'
 import { useToast } from '@/hooks/use-toast'
-import { ShoppingCart, X, Plus, MessageCircle } from 'lucide-react'
+import { ShoppingCart, X, Plus, MessageCircle, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface CartDrawerProps {
@@ -25,6 +26,18 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const { items, removeItem, clearCart } = useCart()
   const { toast } = useToast()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [countdown, setCountdown] = useState<number | null>(null)
+  const [messageCopied, setMessageCopied] = useState(false)
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
+      }
+    }
+  }, [])
 
   const handleRemoveItem = (location: Location) => {
     removeItem(location.id)
@@ -50,7 +63,9 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   }, 0)
 
   const handleDivulgar = () => {
-    if (items.length === 0) return
+    if (items.length === 0 || isLoading) return
+
+    setIsLoading(true)
 
     const isPlural = items.length > 1
     const localText = isPlural ? 'locais' : 'local'
@@ -74,12 +89,52 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
       }
     })
 
-    const whatsappMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/5571996455433?text=${whatsappMessage}`
+    setCountdown(5)
+    
+    navigator.clipboard.writeText(message).then(() => {
+      setMessageCopied(true)
+    }).catch(() => {
+      setMessageCopied(false)
+    })
+    let currentCountdown = 5
 
-    window.open(whatsappUrl, '_blank')
-    clearCart()
-    onOpenChange(false)
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current)
+    }
+
+    countdownIntervalRef.current = setInterval(() => {
+      currentCountdown--
+      setCountdown(currentCountdown)
+      if (currentCountdown <= 0) {
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current)
+          countdownIntervalRef.current = null
+        }
+        setCountdown(null)
+      }
+    }, 1000)
+
+    setTimeout(() => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current)
+        countdownIntervalRef.current = null
+      }
+      setIsLoading(false)
+      setCountdown(null)
+      setMessageCopied(false)
+      
+      const whatsappMessage = encodeURIComponent(message)
+      const phoneNumber = '557188664159'
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`
+
+      const link = document.createElement('a')
+      link.href = whatsappUrl
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }, 5000)
   }
 
   const handleAddMore = () => {
@@ -182,14 +237,44 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                 <Plus className="w-4 h-4 mr-2" />
                 Adicionar Mais
               </Button>
-              <Button onClick={handleDivulgar} className="flex-1 bg-green-600 hover:bg-green-700">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Divulgar {items.length === 1 ? 'neste local' : 'nestes locais'}
+              <Button 
+                onClick={handleDivulgar} 
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Redirecionando...
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Divulgar {items.length === 1 ? 'neste local' : 'nestes locais'}
+                  </>
+                )}
               </Button>
             </div>
           </DrawerFooter>
         )}
       </DrawerContent>
+      
+      {countdown !== null && (
+        <div className="fixed bottom-4 right-4 z-[100] flex items-start gap-3 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg border border-blue-500 animate-in slide-in-from-bottom-2 max-w-sm">
+          <Loader2 className="w-5 h-5 animate-spin mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="font-semibold text-sm mb-1">Redirecionando para WhatsApp...</p>
+            <p className="text-xs opacity-90 mb-1">
+              Você será redirecionado automaticamente em {countdown} segundo{countdown !== 1 ? 's' : ''}.
+            </p>
+            {messageCopied && (
+              <p className="text-xs opacity-90 mt-1 pt-1 border-t border-blue-500">
+                ✓ Mensagem copiada para a área de transferência. Se não aparecer automaticamente, cole no WhatsApp.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </Drawer>
   )
 }
